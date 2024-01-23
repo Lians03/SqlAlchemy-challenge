@@ -33,11 +33,12 @@ app = Flask(__name__)
 def main():
     return(f"Welcome to the Climate App. <br>"
            f"Below are the available routes: <br>"
+           "-------------------------------------<br>"
            f"/api/v1.0/precipitation <br>"
            f"/api/v1.0/stations <br>"
            f"/api/v1.0/tobs <br>"
-           f"/api/v1.0/<start> <br>"
-           f"/api/v1.0/<start>/<end> <br>"
+           f"/api/v1.0/type in your start date <br>"
+           f"/api/v1.0/type in your start date/type in your end date <br>"
            )
 
 @app.route("/api/v1.0/precipitation")
@@ -53,23 +54,36 @@ def precipitation():
     precipitation_dict = dict(measure_result)
     return jsonify(precipitation_dict)
 
+# @app.route("/api/v1.0/stations")
+# def stations():
+#     session = Session(engine)
+#     station_result = session.query(Station.station, Station.name, Station.latitude, Station.longitude, Station.elevation).all()
+#     session.close()
+
+#     output = []
+#     for station,name,latitude,longitude,elevation in station_result:
+#         station_dict = {}
+#         station_dict['station'] = station
+#         station_dict['name'] = name
+#         station_dict['latitude'] = latitude
+#         station_dict['longitude'] = longitude
+#         station_dict['elevation'] = elevation
+#         output.append(station_dict)
+
+#     return jsonify(output)
+
 @app.route("/api/v1.0/stations")
 def stations():
     session = Session(engine)
-    station_result = session.query(Station.station, Station.name, Station.latitude, Station.longitude, Station.elevation).all()
+    station_result = session.query(Station.name).all()
     session.close()
 
     output = []
-    for station,name,latitude,longitude,elevation in station_result:
-        station_dict = {}
-        station_dict['station'] = station
-        station_dict['name'] = name
-        station_dict['latitude'] = latitude
-        station_dict['longitude'] = longitude
-        station_dict['elevation'] = elevation
-        output.append(station_dict)
+    for record in station_result:
+        output.append(record.name)
 
     return jsonify(output)
+
 
 @app.route("/api/v1.0/tobs")
 def tobs():
@@ -91,7 +105,7 @@ def tobs():
 @app.route("/api/v1.0/<start>")
 def temperature(start):
     try:
-        # Validate date format
+        # Validate date format form chatgpt
         dt.datetime.strptime(start, '%Y-%m-%d')
     except ValueError:
         return jsonify({"error": f"Date format should be YYYY-MM-DD. You entered: {start}"}), 400
@@ -115,7 +129,7 @@ def temperature(start):
 @app.route("/api/v1.0/<start>/<end>")
 def start_end(start,end):
     try:
-        # Validate date format
+        # Validate date format form chatgpt
         dt.datetime.strptime(start, '%Y-%m-%d')
         dt.datetime.strptime(end, '%Y-%m-%d')
     except ValueError:
